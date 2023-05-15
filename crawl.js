@@ -1,3 +1,31 @@
+const { JSDOM } = require('jsdom')
+
+exports.getURLsFromHTML = (htmlBody, baseURL) => {
+  const urls = []
+  const dom = new JSDOM(htmlBody)
+  const aElements = dom.window.document.querySelectorAll('a')
+
+  for (const aElement of aElements){
+    if (aElement.href.slice(0,1) === '/'){
+      //relative urls
+      try {
+        urls.push(new URL(aElement.href, baseURL).href)
+      } catch (err){
+        console.log(`${err.message}: ${aElement.href}`)
+      }
+    } else {
+      //absolute url
+      try {
+        urls.push(new URL(aElement.href).href)
+      } catch (err){
+        console.log(`${err.message}: ${aElement.href}`)
+      }
+    }
+  }
+
+  return urls
+}
+
 exports.normalizeUrl = (url) => {
   const urlObj = new URL(url)
   let fullPath = `${urlObj.host}${urlObj.pathname}`
